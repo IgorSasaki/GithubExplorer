@@ -1,10 +1,13 @@
-import React, { useState, FormEvent } from "react";
+// Bibliotecas Externas
+import React, { useState, FormEvent, useEffect } from "react";
 import { FiChevronRight } from "react-icons/fi";
 import api from "../../services/api";
 
+// Componentes
 import logoImg from "../../assets/logo.svg";
 
-import { Title, Form, Error, Repositories } from "./styles";
+// Estilização
+import * as Styled from "./styles";
 
 interface Repository {
   full_name: string;
@@ -18,7 +21,22 @@ interface Repository {
 const Dashboard: React.FC = () => {
   const [newRepo, setNewRepo] = useState("");
   const [inputError, setInputError] = useState("");
-  const [repositories, setRepositories] = useState<Repository[]>([]);
+  const [repositories, setRepositories] = useState<Repository[]>(() => {
+    const storagedRepositories = localStorage.getItem(
+      "@githubExplorer:repositories"
+    );
+
+    if (storagedRepositories) {
+      return JSON.parse(storagedRepositories);
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem(
+      "@githubExplorer:repositories",
+      JSON.stringify(repositories)
+    );
+  }, [repositories]);
 
   async function handleAddRepository(
     e: FormEvent<HTMLFormElement>
@@ -46,20 +64,20 @@ const Dashboard: React.FC = () => {
   return (
     <>
       <img src={logoImg} alt="GitHub Explorer" />
-      <Title>Explore repositórios no GitHub</Title>
+      <Styled.Title>Explore repositórios no GitHub</Styled.Title>
 
-      <Form hasError={!!inputError} onSubmit={handleAddRepository}>
+      <Styled.Form hasError={!!inputError} onSubmit={handleAddRepository}>
         <input
           value={newRepo}
           onChange={(e) => setNewRepo(e.target.value)}
           placeholder="Digite o nome do repositório"
         />
         <button type="submit">Pesquisar</button>
-      </Form>
+      </Styled.Form>
 
-      {inputError && <Error>{inputError}</Error>}
+      {inputError && <Styled.Error>{inputError}</Styled.Error>}
 
-      <Repositories>
+      <Styled.Repositories>
         {repositories.map((repository) => (
           <a key={repository.full_name} href="teste">
             <img
@@ -74,7 +92,7 @@ const Dashboard: React.FC = () => {
             <FiChevronRight size={20} />
           </a>
         ))}
-      </Repositories>
+      </Styled.Repositories>
     </>
   );
 };
