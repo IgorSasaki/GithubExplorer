@@ -1,5 +1,5 @@
 <h1 align="center">
-    <img alt="GitExplorer" title="#gitExplorer" src=".github/gitExplorer.svg" width="250px" />
+    <img alt="GitExplorer" title="#gitExplorer" src=".github/logo.svg" width="250px" />
 </h1>
 <p align="center">
   <img alt="GitHub language count" src="https://img.shields.io/github/languages/count/IgorSasaki/GithubExplorer">
