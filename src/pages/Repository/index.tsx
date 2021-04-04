@@ -1,10 +1,11 @@
 // Bibliotecas
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FiChevronRight, FiChevronLeft } from "react-icons/fi";
 import { useRouteMatch, Link } from "react-router-dom";
 
 // Componentes
 import logoImg from "../../assets/logo.svg";
+import api from "../../services/api";
 
 // Estilização
 import * as Styled from "./styles";
@@ -13,8 +14,48 @@ interface RepositoryParams {
   repository: string;
 }
 
+interface RepositoryInfo {
+  full_name: string;
+  description: string;
+  stargazers_count: number;
+  forks_count: number;
+  open_issues_count: number;
+  owner: {
+    login: string;
+    avatar_url: string;
+  };
+}
+
+interface Issue {
+  id: string;
+  title: string;
+  html_url: string;
+  user: {
+    login: string;
+  };
+}
+
 const Repository: React.FC = () => {
   const { params } = useRouteMatch<RepositoryParams>();
+
+  const [repositoryInfo, setRepositoryInfo] = useState<RepositoryInfo | null>(
+    null
+  );
+  const [issues, setIssues] = useState<Issue[]>([]);
+
+  useEffect(() => {
+    async function loadData(): Promise<void> {
+      const [repositoryInfo, issues] = await Promise.all([
+        api.get(`repos/${params.repository}`),
+        api.get(`repos/${params.repository}/issues`),
+      ]);
+
+      setRepositoryInfo(repositoryInfo.data);
+      setIssues(issues.data);
+    }
+
+    loadData();
+  }, [params.repository]);
 
   return (
     <>
@@ -26,45 +67,51 @@ const Repository: React.FC = () => {
         </Link>
       </Styled.Header>
 
-      <Styled.RepositoryInfo>
-        <header>
-          <img
-            src="https://avatars0.githubusercontent.com/u/28929274?v=4"
-            alt="Rocketseat"
-          />
-          <div>
-            <strong>Rocketseat/unform</strong>
+      {repositoryInfo && (
+        <>
+          <Styled.RepositoryInfo>
+            <header>
+              <img
+                src={repositoryInfo.owner.avatar_url}
+                alt={repositoryInfo.owner.login}
+              />
+              <div>
+                <strong>{repositoryInfo.full_name}</strong>
 
-            <p>Descrição do repositório</p>
-          </div>
-        </header>
+                <p>{repositoryInfo.description}</p>
+              </div>
+            </header>
 
-        <ul>
-          <li>
-            <strong>1808</strong>
-            <span>Stars</span>
-          </li>
-          <li>
-            <strong>48</strong>
-            <span>Forks</span>
-          </li>
-          <li>
-            <strong>67</strong>
-            <span>Issues abertas</span>
-          </li>
-        </ul>
-      </Styled.RepositoryInfo>
+            <ul>
+              <li>
+                <strong>{repositoryInfo.stargazers_count}</strong>
+                <span>Stars</span>
+              </li>
+              <li>
+                <strong>{repositoryInfo.forks_count}</strong>
+                <span>Forks</span>
+              </li>
+              <li>
+                <strong>{repositoryInfo.open_issues_count}</strong>
+                <span>Issues abertas</span>
+              </li>
+            </ul>
+          </Styled.RepositoryInfo>
 
-      <Styled.Issues>
-        <Link to={`/repository/`}>
-          <div>
-            <strong>repository.full_name</strong>
-            <p>repository.description</p>
-          </div>
+          <Styled.Issues>
+            {issues.map((issue) => (
+              <a key={issue.id} href={issue.html_url}>
+                <div>
+                  <strong>{issue.title}</strong>
+                  <p>{issue.user.login}</p>
+                </div>
 
-          <FiChevronRight size={20} />
-        </Link>
-      </Styled.Issues>
+                <FiChevronRight size={20} />
+              </a>
+            ))}
+          </Styled.Issues>
+        </>
+      )}
     </>
   );
 };
