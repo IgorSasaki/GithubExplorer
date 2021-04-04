@@ -43,7 +43,7 @@ Esse projeto foi desenvolvido com as seguintes tecnologias:
 
 - [Typescript](https://www.typescriptlang.org/)
 - [React](https://reactjs.org/) 
-- [Styled COmponents](https://styled-components.com/)
+- [Styled Components](https://styled-components.com/)
 - [React Router DOM](https://reactrouter.com/web/guides/quick-start)
 
 ## :notebook: Executando
